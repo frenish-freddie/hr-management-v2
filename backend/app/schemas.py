@@ -36,6 +36,7 @@ class JobCreate(BaseModel):
     job_description: str
     expected_close_date: date
     budget: float
+    emp_id: str
 
 
 class JobResponse(BaseModel):
@@ -44,6 +45,7 @@ class JobResponse(BaseModel):
     job_description: str
     expected_close_date: date
     budget: float
+    emp_id: str
 
     class Config:
         from_attributes = True

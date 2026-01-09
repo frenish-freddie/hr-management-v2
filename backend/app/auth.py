@@ -16,18 +16,8 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return hash_password(plain_password) == hashed_password
 
-
 @router.post("/register")
 def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
-
-    if user.password != user.confirm_password:
-        raise HTTPException(status_code=400, detail="Passwords do not match")
-
-    if not user.email.endswith("@aptivora.it"):
-        raise HTTPException(
-            status_code=400,
-            detail="Only @aptivora.it email is allowed"
-        )
 
     existing_user = db.query(models.Employee).filter(
         models.Employee.emp_id == user.emp_id
@@ -40,13 +30,15 @@ def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
         emp_id=user.emp_id,
         name=user.name,
         email=user.email,
-        password=hash_password(user.password)
+        password=hash_password(user.password),
+        role=user.role      # ✅ ADD THIS
     )
 
     db.add(new_user)
     db.commit()
 
     return {"message": "Registration successful"}
+
 
 
 @router.post("/login")

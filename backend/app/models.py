@@ -11,7 +11,7 @@ class Employee(Base):
     password = Column(String)
     role = Column(String, default="junior_hr")  # junior_hr / senior_hr
 
-from sqlalchemy import Column, Integer, String, Date, Float
+from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey
 
 class Job(Base):
     __tablename__ = "jobs"
@@ -21,4 +21,6 @@ class Job(Base):
     job_description = Column(String, nullable=False)
     expected_close_date = Column(Date, nullable=False)
     budget = Column(Float, nullable=False)
+    emp_id = Column(String, ForeignKey("employees.emp_id"))
+
 

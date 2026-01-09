@@ -25,7 +25,8 @@ def create_job(job: schemas.JobCreate, db: Session = Depends(get_db)):
         job_title=job.job_title,
         job_description=job.job_description,
         expected_close_date=job.expected_close_date,
-        budget=job.budget
+        budget=job.budget,
+        emp_id=job.emp_id
     )
 
     db.add(new_job)
