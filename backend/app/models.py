@@ -24,3 +24,20 @@ class Job(Base):
     emp_id = Column(String, ForeignKey("employees.emp_id"))
 
 
+from sqlalchemy import Column, Integer, String, ForeignKey, Float
+from sqlalchemy.orm import relationship
+
+class Application(Base):
+    __tablename__ = "applications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    job_id = Column(Integer, ForeignKey("jobs.id"))  # Link to job
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+    resume = Column(String)  # store file path or URL
+    experience = Column(Float)  # in years
+    ctc = Column(Float)  # current salary
+    expected_ctc = Column(Float)  # expected salary
+
+    job = relationship("Job", backref="applications")  # optional ORM relationship

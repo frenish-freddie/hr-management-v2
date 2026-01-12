@@ -54,3 +54,52 @@ def create_job(job: schemas.JobCreate, db: Session = Depends(get_db)):
 def get_jobs(db: Session = Depends(get_db)):
     jobs = db.query(models.Job).all()
     return jobs
+
+
+from fastapi import UploadFile, File
+from app import schemas, models
+from fastapi import HTTPException
+
+# 🔹 POST: Apply to a job
+@app.post("/applications/", response_model=schemas.ApplicationResponse)
+async def apply_job(
+    job_id: int,
+    name: str,
+    email: str,
+    phone: str,
+    experience: float,
+    ctc: float,
+    expected_ctc: float,
+    resume: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    import os
+    os.makedirs("resumes", exist_ok=True)
+
+    file_location = f"resumes/{resume.filename}"
+    with open(file_location, "wb") as f:
+        f.write(await resume.read())
+
+    new_app = models.Application(
+        job_id=job_id,
+        name=name,
+        email=email,
+        phone=phone,
+        experience=experience,
+        ctc=ctc,
+        expected_ctc=expected_ctc,
+        resume=file_location
+    )
+
+    db.add(new_app)
+    db.commit()
+    db.refresh(new_app)
+    return new_app
+
+# 🔹 GET: View applications for a job (HR)
+@app.get("/applications/{job_id}", response_model=list[schemas.ApplicationResponse])
+def get_applications(job_id: int, db: Session = Depends(get_db)):
+    apps = db.query(models.Application).filter(models.Application.job_id == job_id).all()
+    if not apps:
+        raise HTTPException(status_code=404, detail="No applications found for this job")
+    return apps

@@ -50,3 +50,30 @@ class JobResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+
+class ApplicationCreate(BaseModel):
+    job_id: int
+    name: str
+    email: EmailStr
+    phone: str
+    resume: Optional[str] = None  # store filename/path
+    experience: float
+    ctc: float
+    expected_ctc: float
+
+class ApplicationResponse(BaseModel):
+    id: int
+    job_id: int
+    name: str
+    email: EmailStr
+    phone: str
+    resume: Optional[str]
+    experience: float
+    ctc: float
+    expected_ctc: float
+
+    class Config:
+        from_attributes = True
