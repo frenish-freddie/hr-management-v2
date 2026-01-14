@@ -28,6 +28,8 @@ class LoginUser(BaseModel):
     emp_id: str
     password: str
 
+
+
 from pydantic import BaseModel
 from datetime import date
 
@@ -77,3 +79,49 @@ class ApplicationResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+
+
+from pydantic import BaseModel
+from typing import List, Dict, Any, Optional
+
+class BankDetails(BaseModel):
+    bank_name: str
+    account_number: str
+    ifsc_code: str
+
+
+class CompensationItem(BaseModel):
+    basic_salary: float
+    hra: float
+    allowances: float
+    bonus: float
+    pf: float
+    tax: float
+    net_salary: float
+    bank_details: BankDetails
+     
+
+class EmployeeManagementSchema(BaseModel):
+    personal: Optional[Dict[str, Any]] = None
+    employment: Optional[Dict[str, Any]] = None
+    compensation: Optional[List[Dict[str, Any]]] = []
+    attendance: Optional[Dict[str, Any]] = None
+    assets: Optional[Dict[str, Any]] = None
+    documents: Optional[Dict[str, Any]] = None
+    exit_details: Optional[Dict[str, Any]] = None
+
+    class Config:
+        from_attributes = True
+
+
+class CompensationItem(BaseModel):
+    basic_salary: Optional[int] = 0
+    hra: Optional[int] = 0
+    allowances: Optional[int] = 0
+    bonus: Optional[int] = 0
+    pf: Optional[int] = 0
+    tax: Optional[int] = 0
+    net_salary: Optional[int] = 0
+    bank_details: Optional[dict] = {}

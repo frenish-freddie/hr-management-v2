@@ -19,7 +19,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",   # React
-        "http://127.0.0.1:3000"
+        "http://localhost:5173",   # React
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173"
     ],
     allow_credentials=True,
     allow_methods=["*"],  # GET, POST, PUT, DELETE
@@ -103,3 +105,61 @@ def get_applications(job_id: int, db: Session = Depends(get_db)):
     if not apps:
         raise HTTPException(status_code=404, detail="No applications found for this job")
     return apps
+
+
+
+
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.database import get_db, engine, Base
+from app.models import EmployeeManagement
+from app.schemas import CompensationItem
+
+Base.metadata.create_all(bind=engine)
+
+
+
+@app.post("/employee")
+def create_employee(db: Session = Depends(get_db)):
+    employee = EmployeeManagement()
+    db.add(employee)
+    db.commit()
+    db.refresh(employee)
+    return employee
+
+
+@app.post("/employee/{emp_id}/compensation")
+def add_compensation(
+    emp_id: int,
+    new_comp: CompensationItem,
+    db: Session = Depends(get_db)
+):
+    employee = db.query(EmployeeManagement).filter(EmployeeManagement.id == emp_id).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    # ✅ SAFETY
+    if employee.compensation is None:
+        employee.compensation = []
+
+    employee.compensation.append(new_comp.dict())
+
+    db.commit()
+    db.refresh(employee)
+
+    return {
+        "message": "Compensation added successfully",
+        "compensation": employee.compensation
+    }
+
+
+@app.get("/employee/{emp_id}")
+def get_employee(emp_id: int, db: Session = Depends(get_db)):
+    employee = db.query(EmployeeManagement).filter(EmployeeManagement.id == emp_id).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    return employee
